@@ -1,4 +1,5 @@
 import vllm
+from .dataset import Dataset
 
 class MathEval():
     def __init__(self, model_path, **model_args):
@@ -54,7 +55,7 @@ class MathEval():
         sampling_params = vllm.SamplingParams(**self.sampling_args)
         outputs = self.llm.generate(inputs, sampling_params=sampling_params)
 
-        return outputs
+        return [output.outputs[0].text for output in outputs]
 
     def evaluation(self, dataset_name):
         """
