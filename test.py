@@ -1,7 +1,7 @@
 import matheval
 
 # You can set load-model arguments: tensor_parallel_size, dtype, quantization, seed, etc.
-engine = matheval.MathEval("/media/public/models/huggingface/Qwen/Qwen2-72B-Instruct", seed=42)
+engine = matheval.MathEval("/media/public/models/huggingface/Qwen/Qwen2-7B-Instruct", seed=42)
 
 # You should set sampling args before inferencing.
 # best_of, presence_penalty, frequency_penalty, repetition_penalty, temperature
