@@ -1,5 +1,7 @@
+from .grader import math_equal
 
-def check(pred, answer):
+
+def basic_check(pred, answer):
     """
     This function compares the prediction and the ground truth (answer),
     and returns True if they are the same, otherwise returns False.
@@ -11,4 +13,4 @@ def check(pred, answer):
     Returns:
     bool: True if the prediction is correct, otherwise False.
     """
-    return pred == answer
+    return math_equal(pred, answer, timeout=True)

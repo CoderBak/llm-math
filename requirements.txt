@@ -1,0 +1,7 @@
+vllm>=0.6.1
+word2number
+git+https://github.com/ZubinGou/latex2sympy.git
+sympy==1.12
+antlr4-python3-runtime==4.11.1
+Pebble
+timeout-decorator
