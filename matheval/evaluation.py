@@ -6,7 +6,7 @@ from datetime import datetime
 from tqdm import tqdm
 
 from .evaluate import evaluate
-from .utils import set_seed, load_jsonl, save_jsonl, construct_prompt
+from .utils import save_jsonl, construct_prompt
 from .parser import *
 from .trajectory import *
 from .data_loader import load_data
@@ -58,15 +58,15 @@ class MathEval():
         self.evaluation(datasets[0], **kwargs)
 
 
-    def evaluation(self, data_name, base_path, prompt_type="tool-integrated", split="test",
+    def evaluation(self, data_name, prompt_type="tool-integrated", split="test",
                    num_test_sample=-1, shuffle=True, save_outputs=True):
         # This function evaluates the model on a specific dataset.
         os.environ["TOKENIZERS_PARALLELISM"] = "false"
         self.data_name = data_name
         self.base_path = os.path.dirname(__file__)
         print(self.base_path)
-        if base_path.endswith("/"):
-            base_path = base_path[:len(base_path) - 1]
+        if self.base_path.endswith("/"):
+            self.base_path = self.base_path[:len(self.base_path) - 1]
         self.data_path = self.base_path + "/data"
         self.prompt_path = self.base_path + "/prompt"
         self.prompt_type = prompt_type
