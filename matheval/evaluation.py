@@ -54,12 +54,17 @@ class MathEval():
         return response[0].outputs[0].text
 
 
+    def eval(self, datasets, **kwargs):
+        self.evaluation(datasets[0], **kwargs)
+
+
     def evaluation(self, data_name, base_path, prompt_type="tool-integrated", split="test",
                    num_test_sample=-1, shuffle=True, save_outputs=True):
         # This function evaluates the model on a specific dataset.
         os.environ["TOKENIZERS_PARALLELISM"] = "false"
         self.data_name = data_name
-        self.base_path = base_path
+        self.base_path = os.path.dirname(__file__)
+        print(self.base_path)
         if base_path.endswith("/"):
             base_path = base_path[:len(base_path) - 1]
         self.data_path = self.base_path + "/data"
@@ -221,7 +226,7 @@ class MathEval():
 
         if self.save_outputs:
             save_jsonl(all_samples, out_file)
-        
+
         result_json['time_use_in_second'] = time_use
         result_json['time_use_in_minite'] = f"{int(time_use // 60)}:{int(time_use % 60):02d}"
 

@@ -23,10 +23,9 @@ results = engine.generate(inputs)
 使用下面的命令来进行一次对话
 results = engine.chat(messages)
 
-使用下面的命令来在某个数据集上进行评测
-enging.evaluation("gsm8k", base_path="./matheval")
+使用下面的命令来在某些数据集上进行评测
+enging.eval(datasets=["gsm8k"])
 
-base_path 下应当有 data 和 prompt 文件夹。在使用该工具包时，你只需要将他设定为 matheval 所在路径即可。
 
 评测机可以接收评测指令，例如
 enging.evaluation(
@@ -46,21 +45,21 @@ save_outputs: True, 是否保存
 4. set_seed(seed)：设置全局种子，该种子将用于所有地方（所以请不要在模型加载处设置 seed）
 """
 
-matheval.set_seed(41)
+matheval.set_seed(42)
 
 print(matheval.basic_check('(0.6,3.6667]', '(\\frac{3}{5},\\frac{8}{3} + 1]'))
 
-# You can set load-model arguments: tensor_parallel_size, dtype, quantization, seed, etc.
-engine = matheval.MathEval("/media/public/models/huggingface/Qwen/Qwen2-7B-Instruct", enforce_eager=True)
+# You can set load-model arguments: tensor_parallel_size, dtype, quantization, etc.
+engine = matheval.MathEval("/media/public/models/huggingface/deepseek-ai/deepseek-math-7b-rl", enforce_eager=False)
 
 # You should set sampling args before inferencing.
 # best_of, presence_penalty, frequency_penalty, repetition_penalty, temperature
 # top_p, top_k, min_p, seed, use_beam_search, length_penalty, early_stopping
 # stop, max_tokens, min_tokens, etc.
-engine.set_sampling_args(temperature=0.2, max_tokens=1024)
+engine.set_sampling_args(temperature=0, max_tokens=2048)
 
 # Use evaluation to evaluate the model on the given dataset.
-engine.evaluation("gsm8k", base_path="./matheval", prompt_type="direct")
+engine.eval(["gsm8k"], prompt_type="cot")
 
 # Use generate to generate results.
 print(engine.generate([
