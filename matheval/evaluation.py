@@ -25,6 +25,7 @@ class MathEval():
         if "tensor_parallel_size" not in model_args:
             available_gpus = len(os.environ['CUDA_VISIBLE_DEVICES'].split(','))
             model_args["tensor_parallel_size"] = available_gpus
+        self.model_path = model_path
         self.llm = vllm.LLM(model=model_path, trust_remote_code=True, **model_args)
 
 
@@ -54,8 +55,17 @@ class MathEval():
         return response[0].outputs[0].text
 
 
-    def eval(self, datasets, **kwargs):
-        self.evaluation(datasets[0], **kwargs)
+    def test(self, datasets, **kwargs):
+        results = []
+        for data_name in datasets:
+            cur_result = self.evaluation(data_name, **kwargs)
+            results.append([data_name, cur_result])
+
+        print("############## Statistics ##############")
+        print(f"Model: {self.model_path}")
+        for result in results:
+            print("-" * 30)
+            print(f"{result[0]}: {result[1]}")
 
 
     def evaluation(self, data_name, prompt_type="tool-integrated", split="test",
@@ -64,7 +74,6 @@ class MathEval():
         os.environ["TOKENIZERS_PARALLELISM"] = "false"
         self.data_name = data_name
         self.base_path = os.path.dirname(__file__)
-        print(self.base_path)
         if self.base_path.endswith("/"):
             self.base_path = self.base_path[:len(self.base_path) - 1]
         self.data_path = self.base_path + "/data"
@@ -74,7 +83,8 @@ class MathEval():
         self.num_test_sample = num_test_sample
         self.shuffle = shuffle
         self.save_outputs = save_outputs
-        self.run()
+        result = self.run()
+        return result
 
 
     def run(self):
@@ -85,7 +95,7 @@ class MathEval():
             random.shuffle(examples)
 
         out_file_prefix = f'./output/{datetime.now().strftime("%m-%d_%H-%M")}/'
-        out_file = out_file_prefix + 'results.jsonl'
+        out_file = out_file_prefix + f'results_{self.data_name}.jsonl'
         os.makedirs(out_file_prefix, exist_ok=True)
 
         print("=" * 50)
@@ -146,7 +156,7 @@ class MathEval():
         # measure time use
         start_time = time.time()
         for epoch in range(max_func_call):
-            print("-" * 20, "Epoch", epoch)
+            print("-" * 20, "Epoch", epoch, "-" * 20)
             current_prompts = remain_prompts
             if len(current_prompts) == 0:
                 break

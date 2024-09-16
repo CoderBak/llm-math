@@ -44,14 +44,14 @@ class GenericRuntime:
         # print("global vars:", self._global_vars)
         # _print_ = PrintCollector
         # exec(byte_code, {'__builtins__': utility_builtins}, None)
-        
+
     def eval_code(self, expr: str) -> Any:
         return eval(expr, self._global_vars)
-    
+
     def inject(self, var_dict: Dict[str, Any]) -> None:
         for k, v in var_dict.items():
             self._global_vars[k] = v
-    
+
     @property
     def answer(self):
         return self._global_vars['answer']
@@ -59,7 +59,7 @@ class GenericRuntime:
 
 class DateRuntime(GenericRuntime):
     GLOBAL_DICT = {
-        'datetime': datetime.datetime, 
+        'datetime': datetime.datetime,
         'timedelta': dateutil.relativedelta.relativedelta,
         'relativedelta': dateutil.relativedelta.relativedelta
     }
@@ -136,7 +136,7 @@ class PythonExecutor:
             s = s[:half] + "..." + s[-half:]
         return s
 
-    def batch_apply(self, batch_code):
+    def batch_apply(self, batch_code, use_tqdm=True):
         all_code_snippets = self.process_generation_to_code(batch_code)
 
         timeout_cnt = 0
@@ -153,10 +153,10 @@ class PythonExecutor:
             future = pool.map(executor, all_code_snippets, timeout=self.timeout_length)
             iterator = future.result()
 
-            if len(all_code_snippets) > 100:  
-                progress_bar = tqdm(total=len(all_code_snippets), desc="Execute")  
-            else:  
-                progress_bar = None 
+            if len(all_code_snippets) > 100 and use_tqdm:
+                progress_bar = tqdm(total=len(all_code_snippets), desc="Execute")
+            else:
+                progress_bar = None
 
             while True:
                 try:
@@ -172,10 +172,10 @@ class PythonExecutor:
                     print(error)
                     exit()
                 if progress_bar is not None:
-                    progress_bar.update(1) 
-            
+                    progress_bar.update(1)
+
             if progress_bar is not None:
-                progress_bar.close() 
+                progress_bar.close()
 
         batch_results = []
         for code, (res, report) in zip(all_code_snippets, all_exec_results):
