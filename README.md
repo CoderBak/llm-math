@@ -15,7 +15,7 @@ pip install -r requirements.txt
 
    设置全局种子.
 
-2.  `basic_check(A, B)`
+2. `basic_check(A, B)`
 
    检查 A, B 两个**纯数学**表达式是否一致，返回 True / False.
 
@@ -32,26 +32,31 @@ pip install -r requirements.txt
    设定推理参数，再次使用该命令可更新参数，见 [vllm.SamplingParams](https://docs.vllm.ai/en/latest/dev/sampling_params.html#vllm.SamplingParams).
 
 6. `results = engine.generate(inputs)`
+
    进行**批量**推理.
 
 7. `results = engine.chat(messages)`
+
    进行**单次**对话.
 
-8. `engine.test(datasets=["gsm8k", "math"], prompt_type="direct", args)`
-   进行评测. 可用的参数包括：`prompt_type`, `split`, `num_test_sample`, `shuffle`, `save_outputs`
+8.  `engine.test(datasets=["gsm8k", "math"], prompt_type="direct", args)`
+
+   进行评测. 可用的参数包括：`prompt_type`, `split`, `num_test_sample`, `shuffle`, `save_outputs`.
+
+   `prompt_type`: "tool-integrated", "direct", "cot", "pal", "self-instruct", "self-instruct-boxed", "tora", "wizard_zs", "platypus_fs", "deepseek-math", "kpmath".
+
+   `split`: "test", "train", ..., 测试的部分.
+
+   `num_test_sample`: -1, 随机选取这些数量的进行测试.
+
+   `shuffle`: True, 是否随机打乱测试集.
+
+   `save_outputs`: True, 是否保存模型输出.
 
 ### Example
 
 ```python
 import matheval
-
-"""
-prompt_type: "tool-integrated", "direct", "cot", "pal", "self-instruct", "self-instruct-boxed", "tora", "pal", "cot", "wizard_zs", "platypus_fs", "deepseek-math", "kpmath"
-split: test, ...
-num_test_sample: -1, 随机选取这些数量的做测试
-shuffle: True, 是否随机打乱测试集
-save_outputs: True, 是否保存
-"""
 
 matheval.set_seed(42)
 print(matheval.basic_check('(0.6,3.6667]', '(\\frac{3}{5},\\frac{8}{3} + 1]'))
@@ -78,7 +83,6 @@ print(engine.chat([
     {"role": "assistant", "content": "祝你生日快乐！"},
     {"role": "user", "content": "你知道我今年多少岁吗？"}
 ]))
-"""
 ```
 
 ### Notes
