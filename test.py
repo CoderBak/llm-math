@@ -75,7 +75,7 @@ engine = matheval.MathEval("/media/public/models/huggingface/meta-llama/Llama-2-
 
 # You should set sampling args before inferencing.
 # best_of, presence_penalty, frequency_penalty, repetition_penalty, temperature
-# top_p, top_k, min_p, seed, use_beam_search, length_penalty, early_stopping
+# top_p, top_k, min_p, use_beam_search, length_penalty, early_stopping
 # stop, max_tokens, min_tokens, etc.
 engine.set_sampling_args(temperature=0, max_tokens=2048)
 

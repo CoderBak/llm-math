@@ -20,8 +20,8 @@ class MathEval():
         You can set: tokenizer, tensor_parallel_size, dtype, quantization,
         gpu_memory_utilization, enforce_eager, etc.
         """
-        seed = int(os.environ["PYTHONHASHSEED"])
-        model_args["seed"] = seed
+        self.seed = int(os.environ["PYTHONHASHSEED"])
+        model_args["seed"] = self.seed
         if "tensor_parallel_size" not in model_args:
             available_gpus = len(os.environ['CUDA_VISIBLE_DEVICES'].split(','))
             model_args["tensor_parallel_size"] = available_gpus
@@ -33,10 +33,11 @@ class MathEval():
         """
         This function sets the sampling params. It must be called before evaluation.
         You can set: best_of, presence_penalty, frequency_penalty, repetition_penalty, temperature,
-        top_p, top_k, min_p, seed, use_beam_search, length_penalty, early_stopping,
+        top_p, top_k, min_p, use_beam_search, length_penalty, early_stopping,
         stop, max_tokens, min_tokens, etc.
         """
         self.sampling_args = sampling_args
+        self.sampling_args["seed"] = self.seed
         self.sampling_params = vllm.SamplingParams(**sampling_args)
 
 
