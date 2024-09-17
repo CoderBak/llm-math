@@ -39,11 +39,11 @@ pip install -r requirements.txt
 
    进行**单次**对话.
 
-8.  `engine.test(datasets=["gsm8k", "math"], prompt_type="direct", args)`
+8. `engine.test(datasets=["gsm8k", "math"], prompt_type="direct", args)`
 
    进行评测. 可用的参数包括：`prompt_type`, `split`, `num_test_sample`, `shuffle`, `save_outputs`.
 
-   `prompt_type`: "tool-integrated", "direct", "cot", "pal", "self-instruct", "self-instruct-boxed", "tora", "wizard_zs", "platypus_fs", "deepseek-math", "kpmath".
+   `prompt_type`: tool-integrated, direct, cot, pal, self-instruct, self-instruct-boxed, tora, wizard_zs, platypus_fs, deepseek-math, kpmath.
 
    `split`: "test", "train", ..., 测试的部分.
 
