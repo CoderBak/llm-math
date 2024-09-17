@@ -99,4 +99,4 @@ print(engine.chat([
 
 - 由于设置全局种子也会设定模型加载和推理的种子，所以模型加载和推理时不需要再次设定种子.
 
-- `tensor_parallel_size` 默认设为 `CUDA_VISIBLE_DEVICES` 数量 (假定不超过 10 张显卡).
+- `tensor_parallel_size` 默认设为 `torch.cuda.device_count()`.

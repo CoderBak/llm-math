@@ -1,4 +1,5 @@
 import os
+import torch
 import vllm
 import random
 import time
@@ -23,8 +24,7 @@ class MathEval():
         self.seed = int(os.environ["PYTHONHASHSEED"])
         model_args["seed"] = self.seed
         if "tensor_parallel_size" not in model_args:
-            available_gpus = len(os.environ['CUDA_VISIBLE_DEVICES'].split(','))
-            model_args["tensor_parallel_size"] = available_gpus
+            model_args["tensor_parallel_size"] = torch.cuda.device_count()
         self.model_path = model_path
         self.llm = vllm.LLM(model=model_path, trust_remote_code=True, **model_args)
 
