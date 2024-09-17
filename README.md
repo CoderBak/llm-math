@@ -41,7 +41,7 @@ pip install -r requirements.txt
 
 8. `engine.test(datasets=["gsm8k", "math"], prompt_type="direct", args)`
 
-   进行评测. 可用的参数包括：`prompt_type`, `split`, `num_test_sample`, `shuffle`, `save_outputs`.
+   进行评测. 可用的参数：
 
    `prompt_type="cot"`: prompt 的类型设置.
 
