@@ -43,7 +43,7 @@ pip install -r requirements.txt
 
    进行评测. 可用的参数包括：`prompt_type`, `split`, `num_test_sample`, `shuffle`, `save_outputs`.
 
-   `prompt_type`: tool-integrated, direct, cot, pal, self-instruct, self-instruct-boxed, tora, wizard_zs, platypus_fs, deepseek-math, kpmath.
+   `prompt_type`: tool-integrated, direct, cot, pal, ...
 
    `split`: "test", "train", ..., 测试的部分.
 
@@ -52,6 +52,10 @@ pip install -r requirements.txt
    `shuffle`: True, 是否随机打乱测试集.
 
    `save_outputs`: True, 是否保存模型输出.
+
+- 支持的 `prompt_type`: tool-integrated, direct, cot, pal, self-instruct, self-instruct-boxed, tora, wizard_zs, platypus_fs, deepseek-math, kpmath.
+
+- 支持的 `data_name`: gsm8k, math, svamp, asdiv, mawps, tabmwp, mathqa, mmlu_stem, sat_math
 
 ### Example
 
