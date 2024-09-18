@@ -80,12 +80,14 @@ print(engine.generate([
     "---\n1+1=2\n---2+2=4\n---3+3=6\n---4+4=8\n---5+5=10\n---6+6=",
     "Answer this question directly: The sum of two numbers is 10. The difference of the same two numbers is 4. What are the two numbers?"
 ]))
+"""
 print(engine.chat([
     {"role": "system", "content": "You are a helpful assistant."},
     {"role": "user", "content": "我今天18岁生日，你能写句话祝福我吗"},
     {"role": "assistant", "content": "祝你生日快乐！"},
     {"role": "user", "content": "你知道我今年多少岁吗？"}
 ]))
+"""
 ```
 
 ### Notes
