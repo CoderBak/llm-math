@@ -79,7 +79,7 @@ class Model():
         if self.base_path.endswith("/"):
             self.base_path = self.base_path[:len(self.base_path) - 1]
         self.data_path = self.base_path + "/data"
-        self.prompt_path = self.base_path + "/prompt"
+        self.prompt_path = self.base_path + "/prompts"
         self.prompt_type = prompt_type
         self.split = split
         self.num_test_sample = num_test_sample

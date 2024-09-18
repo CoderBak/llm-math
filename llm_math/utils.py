@@ -34,15 +34,15 @@ def save_jsonl(samples, save_path):
     print("Saved to", save_path)
 
 
-def lower_keys(example):  
-    new_example = {}  
-    for key, value in example.items():  
-        if key != key.lower():  
-            new_key = key.lower()  
-            new_example[new_key] = value  
-        else:  
-            new_example[key] = value  
-    return new_example 
+def lower_keys(example):
+    new_example = {}
+    for key, value in example.items():
+        if key != key.lower():
+            new_key = key.lower()
+            new_example[new_key] = value
+        else:
+            new_example[key] = value
+    return new_example
 
 
 def load_prompt(data_name, prompt_type, prompt_path):
@@ -58,14 +58,14 @@ def load_prompt(data_name, prompt_type, prompt_path):
         prompt_type = "tora"
 
     if prompt_type in ['cot', 'pal', 'tora']:
-        prompt_path = "./matheval/prompts/{}/{}.md".format(prompt_type, data_name)
+        cur_prompt_path = f"{prompt_path}/{prompt_type}/{data_name}.md"
         if not os.path.exists(prompt_path):
-            prompt_path = "./matheval/prompts/{}.md".format(prompt_type)
-        if os.path.exists(prompt_path):
-            with open(prompt_path, 'r', encoding='utf-8') as fp:
+            cur_prompt_path = f"{prompt_path}/{prompt_type}.md"
+        if os.path.exists(cur_prompt_path):
+            with open(cur_prompt_path, 'r', encoding='utf-8') as fp:
                 prompt = fp.read().strip() + "\n\n\n"
         else:
-            print(f"Error: prompt file {prompt_path} not found")
+            print(f"Error: prompt file {cur_prompt_path} not found")
             prompt = ""
     else:
         prompt = ""
