@@ -13,7 +13,7 @@ from .trajectory import *
 from .data_loader import load_data
 from .python_executor import PythonExecutor
 
-class MathEval():
+class Model():
     def __init__(self, model_path, **model_args):
         """
         This function loads the model following model_args.
