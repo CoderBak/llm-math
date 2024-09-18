@@ -2,11 +2,10 @@
 
 基于 [math-evaluation-harness](https://github.com/ZubinGou/math-evaluation-harness/) 改造的 plug-and-play 数学评测包.
 
-### Install
+### Quick start
 
 ```bash
-conda create -n llm_math python=3.10
-pip install -r requirements.txt
+pip install llm_math
 ```
 
 ### Usage
