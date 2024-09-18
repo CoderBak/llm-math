@@ -38,7 +38,7 @@ def check(prompt_type, data_name, target, pred):
     base_path = os.path.dirname(__file__)
     if base_path.endswith("/"):
         base_path = base_path[:len(base_path) - 1]
-    prompt_path = base_path + "/prompt"
+    prompt_path = base_path + "/prompts"
 
     full_prompt = construct_prompt(target, data_name, prompt_type, prompt_path)
     sample = {'idx': idx, 'gt': gt_ans, 'prompt': full_prompt}
@@ -52,7 +52,7 @@ def check(prompt_type, data_name, target, pred):
     samples = [sample]
 
     # repeat n times
-    input_prompts = [sample['prompt']]
+    input_prompts = [sample['prompt'] for sample in samples]
     remain_prompts = input_prompts
     remain_prompts = [(i, prompt) for i, prompt in enumerate(remain_prompts)]
     end_prompts = []
@@ -92,9 +92,6 @@ def check(prompt_type, data_name, target, pred):
             exec_result = "\\boxed{" + exec_result + "}"
         exec_result = f"\n```output\n{exec_result}\n```\n"
         query += exec_result
-        # not end
-        if epoch == max_func_call - 1:
-            query += "\nReach max function call limit."
         remain_prompts[k] = (i, query)
 
     # unsolved samples

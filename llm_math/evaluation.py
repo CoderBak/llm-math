@@ -56,10 +56,10 @@ class Model():
         return response[0].outputs[0].text
 
 
-    def test(self, datasets, **kwargs):
+    def test(self, datasets, prompt_type, **kwargs):
         results = []
         for data_name in datasets:
-            cur_result = self.evaluation(data_name, **kwargs)
+            cur_result = self.evaluation(data_name, prompt_type, **kwargs)
             results.append([data_name, cur_result])
 
         print("############## Statistics ##############")
@@ -70,7 +70,7 @@ class Model():
             print(f"{result[0]}: {result[1]}")
 
 
-    def evaluation(self, data_name, prompt_type="tool-integrated", split="test",
+    def evaluation(self, data_name, prompt_type, split="test",
                    num_test_sample=-1, shuffle=True, save_outputs=True):
         # This function evaluates the model on a specific dataset.
         os.environ["TOKENIZERS_PARALLELISM"] = "false"
