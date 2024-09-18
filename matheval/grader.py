@@ -14,7 +14,7 @@ from typing import Union
 from sympy import simplify, N
 from sympy.parsing.sympy_parser import parse_expr
 from sympy.parsing.latex import parse_latex
-from latex2sympy2 import latex2sympy
+from latex2sympy import latex2sympy
 
 def parse_digits(num):
     num = regex.sub(',', '', str(num))
@@ -172,7 +172,7 @@ def math_equal_process(param):
 
 
 def numeric_equal(prediction: float, reference: float):
-    # Note that relative tolerance has significant impact 
+    # Note that relative tolerance has significant impact
     # on the result of the synthesized gsm_hard dataset
     # if reference.is_integer():
     #     return isclose(reference, round(prediction), abs_tol=1e-4)
