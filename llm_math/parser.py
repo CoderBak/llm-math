@@ -4,6 +4,7 @@ import sympy
 from typing import TypeVar, Iterable, List, Union, Any, Dict
 from word2number import w2n
 from .utils import *
+from .trajectory import *
 
 
 def _fix_fracs(string):
@@ -79,7 +80,7 @@ unit_texts = [
     "sq . m", "gallon", "° f", "profit", "minw", "yr", "women",
     "feet", "am", "pm", "hr", "cu cm", "square", "v â € ™", "are",
     "rupee", "rounds", "cubic", "cc", "mtr", "s", "ohm", "number",
-    "kmph", "day", "hour", "minute", "min", "second", "man", "woman", 
+    "kmph", "day", "hour", "minute", "min", "second", "man", "woman",
     "sec", "cube", "mt", "sq inch", "mp", "∏ cm ³", "hectare", "more",
     "sec", "unit", "cu . m", "cm 2", "rs .", "rs", "kg", "g", "month",
     "km", "m", "cm", "mm", "apple", "liter", "loss", "yard",
@@ -104,8 +105,8 @@ def strip_string(string):
     # string = string.replace("\\\\", "\\")
 
     # matrix
-    string = re.sub(r'\\begin\{array\}\{.*?\}', r'\\begin{pmatrix}', string)  
-    string = re.sub(r'\\end\{array\}', r'\\end{pmatrix}', string)  
+    string = re.sub(r'\\begin\{array\}\{.*?\}', r'\\begin{pmatrix}', string)
+    string = re.sub(r'\\end\{array\}', r'\\end{pmatrix}', string)
     string = string.replace("bmatrix", "pmatrix")
 
 
@@ -124,7 +125,7 @@ def strip_string(string):
     if _string != "" and _string != string:
         # print("Warning: unit not removed: '{}' -> '{}'".format(string, _string))
         string = _string
-    
+
     # Remove unit: texts
     for _ in range(2):
         for unit_text in unit_texts:
@@ -174,7 +175,7 @@ def strip_string(string):
         string = string.replace("inf", "\\infty")
     string = string.replace("+\\inity", "\\infty")
 
-    # and 
+    # and
     string = string.replace("and", "")
     string = string.replace("\\mathbf", "")
 
@@ -184,7 +185,7 @@ def strip_string(string):
     # quote
     string.replace("'", "")
     string.replace("\"", "")
-    
+
     # i, j
     if "j" in string and "i" not in string:
         string = string.replace("j", "i")
