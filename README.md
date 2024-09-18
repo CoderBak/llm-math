@@ -5,7 +5,7 @@
 ### Quick start
 
 ```bash
-pip install llm_math
+pip install llm-math
 ```
 
 ### Usage
