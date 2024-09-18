@@ -64,6 +64,7 @@ class MathEval():
 
         print("############## Statistics ##############")
         print(f"Model: {self.model_path}")
+        print(f"prompt_type: {self.prompt_type}")
         for result in results:
             print("-" * 30)
             print(f"{result[0]}: {result[1]}")
