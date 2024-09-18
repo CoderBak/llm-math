@@ -12,7 +12,7 @@ pip install llm-math
 
 #### Prompt type: Direct
 
-|  Model                                                     | Size | GSM8K | MATH | SVAMP | ASDiv | MAWPS | TAB | MQA | MMLU STEM | SAT MATH |
+|  Model                                                     | Size | GSM8K | MATH | SVAMP | ASDiv | MAWPS | TAB | MQA | MMLU STEM | SAT |
 |:-------:                                                   |:----:|:-----:|:----:|:-----:|:-----:|:-----:|:---:|:---:|:---------:|:---:|
 | [LLaMA-2](https://huggingface.co/meta-llama/Llama-2-7b-hf) |  7B  |       |      |       |       |       |     |     |           |     |
 | [LLaMA-3](https://huggingface.co/meta-llama/Meta-Llama-3-8B)|  8B |       |      |       |       |       |     |     |           |     |
@@ -20,7 +20,7 @@ pip install llm-math
 
 #### Prompt type: CoT
 
-|  Model                                                     | Size | GSM8K | MATH | SVAMP | ASDiv | MAWPS | TAB | MQA | MMLU STEM | SAT MATH |
+|  Model                                                     | Size | GSM8K | MATH | SVAMP | ASDiv | MAWPS | TAB | MQA | MMLU STEM | SAT |
 |:-------:                                                   |:----:|:-----:|:----:|:-----:|:-----:|:-----:|:---:|:---:|:---------:|:---:|
 | [LLaMA-2](https://huggingface.co/meta-llama/Llama-2-7b-hf) |  7B  |       |      |       |       |       |     |     |           |     |
 | [LLaMA-3](https://huggingface.co/meta-llama/Meta-Llama-3-8B)|  8B |       |      |       |       |       |     |     |           |     |
