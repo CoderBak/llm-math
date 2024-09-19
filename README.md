@@ -22,7 +22,7 @@ pip install llm-math
 
 |  Model                                                      | GSM8K | MATH | SVAMP | ASDiv | MAWPS | TAB | MQA | MMLU STEM | SAT |
 |:-------:                                                   |:-----:|:----:|:-----:|:-----:|:-----:|:---:|:---:|:---------:|:---:|
-| [LLaMA-2](https://huggingface.co/meta-llama/Llama-2-7b-hf) (7B)|       |      |       |       |       |     |     |           |     |
+| [LLaMA-2](https://huggingface.co/meta-llama/Llama-2-7b-hf) (7B)| 14.0  |  4.3   |  39.2  |  51.6  | 63.5  | 31.3 | 12.2  | 32.8  | 37.5  |
 | [LLaMA-3](https://huggingface.co/meta-llama/Meta-Llama-3-8B) (8B)|       |      |       |       |       |     |     |           |     |
 | [LLaMA-3.1](https://huggingface.co/meta-llama/Meta-Llama-3.1-8B) (8B) |       |      |       |       |       |     |     |           |     |
 
