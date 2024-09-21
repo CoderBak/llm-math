@@ -6,7 +6,7 @@ from .utils import load_jsonl, lower_keys
 
 
 def load_data(data_name, split, data_dir):
-    if data_name in ['minerva_math']:
+    if data_name in ['minerva_math', 'math_test']:
         data_name = 'math_oai'
     data_file = f"{data_dir}/{data_name}/{split}.jsonl"
     if os.path.exists(data_file):
@@ -21,7 +21,7 @@ def load_data(data_name, split, data_dir):
         elif data_name == "gsm_hard":
             dataset = load_dataset("reasoning-machines/gsm_hard", split="train")
         elif data_name == "svamp":
-            # evaluate on training set + test set 
+            # evaluate on training set + test set
             dataset = load_dataset("ChilleD/SVAMP", split="train")
             dataset = concatenate_datasets([dataset, load_dataset("ChilleD/SVAMP", split="test")])
         elif data_name == "asdiv":
