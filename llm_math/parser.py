@@ -285,14 +285,14 @@ def extract_answer(pred_str, data_name):
 
 def parse_ground_truth(example: Dict[str, Any], data_name):
     if 'gt_cot' in example and 'gt' in example:
-        if data_name in ["math", "math_oai", "ocw", "amps", "hungarian_exam"]:
+        if data_name in ["math", "math_test", "math_oai", "ocw", "amps", "hungarian_exam"]:
             gt_ans = extract_answer(example['gt_cot'], data_name)
         else:
             gt_ans = strip_string(example['gt'])
         return example['gt_cot'], gt_ans
 
     # parse ground truth
-    if data_name in ["math", "math_oai", "minerva_math", "ocw", "amps", "hungarian_exam"]:
+    if data_name in ["math", "math_test", "math_oai", "minerva_math", "ocw", "amps", "hungarian_exam"]:
         gt_cot = example['solution']
         gt_ans = extract_answer(gt_cot, data_name)
     elif data_name in ['mathqa']:

@@ -6,7 +6,7 @@ from .utils import load_jsonl, lower_keys
 
 
 def load_data(data_name, split, data_dir):
-    if data_name in ['minerva_math', 'math_test']:
+    if data_name in ['minerva_math']:
         data_name = 'math_oai'
     data_file = f"{data_dir}/{data_name}/{split}.jsonl"
     if os.path.exists(data_file):

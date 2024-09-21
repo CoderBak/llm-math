@@ -48,7 +48,7 @@ def lower_keys(example):
 def load_prompt(data_name, prompt_type, prompt_path):
     if data_name in ['gsm_hard', 'svamp', 'tabmwp', 'asdiv', 'mawps']:
         data_name = "gsm8k"
-    if data_name in ['math_oai', "hungarian_exam"]:
+    if data_name in ['math_test', 'math_oai', "hungarian_exam"]:
         data_name = "math"
     if data_name in ['sat_math']:
         data_name = "mmlu_stem"
@@ -77,7 +77,7 @@ def construct_prompt(example, data_name, prompt_type, prompt_path):
     if prompt_type in ["direct", "cot", "pal", "tool-integrated"]:
         demo_prompt = load_prompt(data_name, prompt_type, prompt_path)
         if prompt_type in ["direct", "cot"]:
-            if data_name in ["minerva_math", "math", "math_oai", "mmlu_stem", "sat_math", "mathqa", "hungarian_exam"]:
+            if data_name in ["minerva_math", "math", "math_test", "math_oai", "mmlu_stem", "sat_math", "mathqa", "hungarian_exam"]:
                 context = f"Problem:\n{example['question']}\nSolution:"
             else:
                 context = f"Question: {example['question']}\nAnswer:"
