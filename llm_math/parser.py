@@ -284,6 +284,9 @@ def extract_answer(pred_str, data_name):
 
 
 def parse_ground_truth(example: Dict[str, Any], data_name):
+    if data_name in ["math_oai_correct", "math_oai_wrong_50", "math_oai_wrong", "4o_correct", "4o_wrong"]:
+        data_name = "math_oai"
+
     if 'gt_cot' in example and 'gt' in example:
         if data_name in ["math", "math_test", "math_oai", "ocw", "amps", "hungarian_exam"]:
             gt_ans = extract_answer(example['gt_cot'], data_name)
