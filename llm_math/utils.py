@@ -74,8 +74,7 @@ def load_prompt(data_name, prompt_type, prompt_path):
 
 def construct_prompt(example, data_name, prompt_type, prompt_path, test_prompt=""):
     if prompt_type in ["test"]:
-        Question = example["question"]
-        return eval('"' + test_prompt + '".format(Question)')
+        return test_prompt.replace("{Question}", example["question"])
     # Base models
     if prompt_type in ["direct", "cot", "pal", "tool-integrated"]:
         demo_prompt = load_prompt(data_name, prompt_type, prompt_path)
