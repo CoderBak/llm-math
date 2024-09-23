@@ -71,7 +71,7 @@ class Model():
 
 
     def evaluation(self, data_name, prompt_type, split="test",
-                   num_test_sample=-1, shuffle=True, test_prompt="", save_outputs=True):
+                   num_test_sample=-1, shuffle=True, save_outputs=True):
         # This function evaluates the model on a specific dataset.
         os.environ["TOKENIZERS_PARALLELISM"] = "false"
         self.data_name = data_name
@@ -85,7 +85,6 @@ class Model():
         self.num_test_sample = num_test_sample
         self.shuffle = shuffle
         self.save_outputs = save_outputs
-        self.test_prompt = test_prompt
         result = self.run()
         return result
 
@@ -117,7 +116,7 @@ class Model():
             # parse question and answer
             example['question'] = parse_question(example, self.data_name)
             gt_cot, gt_ans = parse_ground_truth(example, self.data_name)
-            full_prompt = construct_prompt(example, self.data_name, self.prompt_type, self.prompt_path, self.test_prompt)
+            full_prompt = construct_prompt(example, self.data_name, self.prompt_type, self.prompt_path)
 
             if idx == 0:
                 print(full_prompt)
