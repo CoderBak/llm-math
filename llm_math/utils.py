@@ -73,6 +73,8 @@ def load_prompt(data_name, prompt_type, prompt_path):
 
 
 def construct_prompt(example, data_name, prompt_type, prompt_path):
+    if prompt_type in ["test"]:
+        return "Answer the following question step by step and put the final answer in \\boxed{}:\n" + example["question"]
     # Base models
     if prompt_type in ["direct", "cot", "pal", "tool-integrated"]:
         demo_prompt = load_prompt(data_name, prompt_type, prompt_path)
