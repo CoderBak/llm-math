@@ -90,8 +90,11 @@ class Model():
         self.test_prompt = test_prompt
         self.template_path = template_path
 
-        with open(self.template_path, "r") as file:
-            self.template = file.read()
+        if len(self.template_path) != 0:
+            with open(self.template_path, "r") as file:
+                self.template = file.read()
+        else:
+            self.template = ""
 
         if len(tokenizer_path) != 0:
             self.tokenizer = AutoTokenizer.from_pretrained(self.tokenizer_path, use_fast=True)
@@ -129,7 +132,7 @@ class Model():
             # parse question and answer
             example['question'] = parse_question(example, self.data_name)
             gt_cot, gt_ans = parse_ground_truth(example, self.data_name)
-            full_prompt = construct_prompt(example, self.data_name, self.prompt_type, self.prompt_path, self.test_prompt)
+            full_prompt = construct_prompt(example, self.data_name, self.prompt_type, self.prompt_path, self.test_prompt, self.template)
 
             if idx == 0:
                 print(full_prompt)
@@ -182,7 +185,7 @@ class Model():
 
             for prompt in prompts:
                 new_prompts.append(self.tokenizer.apply_chat_template(
-                    [{"role": "user", "content": self.template + prompt}],
+                    [{"role": "user", "content": prompt}],
                     tokenize=False,
                     add_generation_prompt=True
                 ))
