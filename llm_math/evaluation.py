@@ -5,6 +5,7 @@ import random
 import time
 from datetime import datetime
 from tqdm import tqdm
+from transformers import AutoTokenizer
 
 from .evaluate import evaluate
 from .utils import save_jsonl, construct_prompt
@@ -71,7 +72,8 @@ class Model():
 
 
     def evaluation(self, data_name, prompt_type, split="test",
-                   num_test_sample=-1, shuffle=True, test_prompt="", save_outputs=True):
+                   num_test_sample=-1, shuffle=True, test_prompt="",
+                   save_outputs=True, template_path="", tokenizer_path=""):
         # This function evaluates the model on a specific dataset.
         os.environ["TOKENIZERS_PARALLELISM"] = "false"
         self.data_name = data_name
@@ -86,6 +88,16 @@ class Model():
         self.shuffle = shuffle
         self.save_outputs = save_outputs
         self.test_prompt = test_prompt
+        self.template_path = template_path
+
+        with open(self.template_path, "r") as file:
+            self.template = file.read()
+
+        if len(tokenizer_path) != 0:
+            self.tokenizer = AutoTokenizer.from_pretrained(self.tokenizer_path, use_fast=True)
+        else:
+            self.tokenizer = AutoTokenizer.from_pretrained(self.model_path, use_fast=True)
+
         result = self.run()
         return result
 
@@ -166,6 +178,15 @@ class Model():
 
             # get all outputs
             prompts = [item[1] for item in current_prompts]
+            new_prompts = []
+
+            for prompt in prompts:
+                new_prompts.append(self.tokenizer.apply_chat_template(
+                    [{"role": "user", "content": self.template + prompt}],
+                    tokenize=False,
+                    add_generation_prompt=True
+                ))
+
             outputs = self.generate(prompts)
 
             assert len(outputs) == len(current_prompts)
