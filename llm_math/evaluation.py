@@ -181,16 +181,107 @@ class Model():
 
             # get all outputs
             prompts = [item[1] for item in current_prompts]
-            new_prompts = []
 
-            for prompt in prompts:
-                new_prompts.append(self.tokenizer.apply_chat_template(
-                    [{"role": "user", "content": prompt}],
-                    tokenize=False,
-                    add_generation_prompt=True
-                ))
+            if False:
+                new_prompts = []
+                
+                with open("./template_1_1.md", "r", encoding="utf-8") as f:
+                    system1 = f.read()
+                
+                with open("./template_1_2.md", "r", encoding="utf-8") as f:
+                    user1 = f.read()
+                
+                with open("./template_1_3.md", "r", encoding="utf-8") as f:
+                    assist1 = f.read()
+                
+                with open("./template_1_4.md", "r", encoding="utf-8") as f:
+                    user2 = f.read()
+                
+                display = [
+                            {"role": "system", "content": system1},
+                            {"role": "user", "content": user1},
+                            {"role": "assistant", "content": assist1},
+                            {"role": "user", "content": user2 + "[Question]\n" + prompts[0]}
+                        ]
 
-            outputs = self.generate(prompts)
+                print(display)
+
+                print(prompts[0])
+
+                for prompt in prompts:
+                    new_prompts.append(self.tokenizer.apply_chat_template(
+                        [
+                            {"role": "system", "content": system1},
+                            {"role": "user", "content": user1},
+                            {"role": "assistant", "content": assist1},
+                            {"role": "user", "content": user2 + "[Question]\n" + prompt}
+                        ],
+                        tokenize=False,
+                        add_generation_prompt=True
+                    ))
+                    """
+                    new_prompts.append(self.tokenizer.apply_chat_template(
+                        [{"role": "user", "content": prompt}],
+                        tokenize=False,
+                        add_generation_prompt=True
+                    ))"""
+                    
+
+                outputs = self.generate(new_prompts)
+            
+            else:
+                """
+                with open("./llm_math/data/math_oai/test.jsonl") as source:
+                    inputs = []
+                    with open("./gpt4o_responses_1.txt") as f1:
+                        inputs += f1.readlines()
+                    with open("./gpt4o_responses_2.txt") as f2:
+                        inputs += f2.readlines()
+                    with open("./gpt4o_responses_3.txt") as f3:
+                        inputs += f3.readlines()
+                    with open("./gpt4o_responses_4.txt") as f4:
+                        inputs += f4.readlines()
+                    with open("./gpt4o_responses_5.txt") as f5:
+                        inputs += f5.readlines()
+                    
+                    sources = []
+                    cnt = 0
+
+                    for line in source:
+                        entry = json.loads(line)
+                        sources.append([entry["problem"], inputs[cnt]])
+                        cnt += 1
+
+                """
+                
+                outputs = []
+
+                """
+                for entry in sources:
+                    for cur_index in range(len(prompts)):
+                        cur_prompt = prompts[cur_index]
+                        if entry[0] == cur_prompt:
+                            outputs.append([cur_index, entry[1]])
+                            break
+                """
+                with open("./s40_e10_r10.jsonl", "r", encoding="utf-8") as f:
+                    appeared = set()
+                    for line in f:
+                        entry = json.loads(line)
+                        for cur_index in range(len(prompts)):
+                            cur_prompt = prompts[cur_index]
+                            if entry["problem"] == cur_prompt:
+                                outputs.append([cur_index, entry["model_output"]])
+                                appeared.add(cur_index)
+                                break
+                    
+                    for cur_index in range(len(prompts)):
+                        if cur_index not in appeared:
+                            outputs.append([cur_index, " "])
+                
+                outputs = sorted(outputs, key=lambda x: x[0])
+                outputs = [_[1] for _ in outputs]
+                
 
             assert len(outputs) == len(current_prompts)
 

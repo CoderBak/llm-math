@@ -75,7 +75,7 @@ def load_prompt(data_name, prompt_type, prompt_path):
 def construct_prompt(example, data_name, prompt_type, prompt_path, test_prompt="", template=""):
     if prompt_type in ["test"]:
         if len(template) != 0:
-            return template + example["question"]
+            return template + "[Question]\n" + example["question"]
         return test_prompt.replace("{Question}", example["question"])
     # Base models
     if prompt_type in ["direct", "cot", "pal", "tool-integrated"]:
