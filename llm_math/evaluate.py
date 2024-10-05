@@ -107,9 +107,8 @@ def evaluate(data_name, prompt_type, samples: list=None, file_path: str=None, ma
         if len(s) < max_len:
             score_mat[i] = s + [s[-1]] * (max_len - len(s)) # pad
 
-    print(np.array(score_mat).sum(axis=0))
     # output mean of each column of scores
-    col_means= np.array(score_mat).mean(axis=0)
+    col_means = np.array(score_mat).mean(axis=0)
     mean_score = list(np.round(col_means * 100, decimals=5))
 
     result_json = {
@@ -117,7 +116,8 @@ def evaluate(data_name, prompt_type, samples: list=None, file_path: str=None, ma
         "num_scores": len(scores),
         "timeout_samples": timeout_cnt,
         "empty_samples": len([s for s in samples if not s['pred'][-1]]),
-        "acc": mean_score[0]
+        "acc": mean_score[0],
+        "correct": np.array(score_mat).sum(axis=0)[0].__str__()
     }
 
     # each type score

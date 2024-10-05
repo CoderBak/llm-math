@@ -8,7 +8,7 @@ from tqdm import tqdm
 from transformers import AutoTokenizer
 
 from .evaluate import evaluate
-from .utils import save_jsonl, construct_prompt
+from .utils import save_jsonl, construct_prompt, postprocess
 from .parser import *
 from .trajectory import *
 from .data_loader import load_data
@@ -73,7 +73,7 @@ class Model():
 
     def evaluation(self, data_name, prompt_type, split="test",
                    num_test_sample=-1, shuffle=True, test_prompt="",
-                   save_outputs=True, template="", pattern=[]):
+                   save_outputs=True, pattern=[]):
         # This function evaluates the model on a specific dataset.
         os.environ["TOKENIZERS_PARALLELISM"] = "false"
         self.data_name = data_name
@@ -88,7 +88,6 @@ class Model():
         self.shuffle = shuffle
         self.save_outputs = save_outputs
         self.test_prompt = test_prompt
-        self.template = template
         self.pattern = pattern
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_path, use_fast=True)
 
@@ -123,7 +122,7 @@ class Model():
             # parse question and answer
             example['question'] = parse_question(example, self.data_name)
             gt_cot, gt_ans = parse_ground_truth(example, self.data_name)
-            full_prompt = construct_prompt(example, self.data_name, self.prompt_type, self.prompt_path, self.test_prompt, self.template)
+            full_prompt = construct_prompt(example, self.data_name, self.prompt_type, self.prompt_path)
 
             if idx == 0:
                 print(full_prompt)
@@ -175,47 +174,29 @@ class Model():
 
             new_prompts = []
 
-            with open("./template_1_1.md", "r", encoding="utf-8") as f:
-                system1 = f.read()
+            if self.prompt_type == "test":
+                for prompt in prompts:
+                    new_elem = []
+                    for elem in self.pattern:
+                        new_elem.append({"role": elem["role"], "content": postprocess(elem["content"], prompt)})
+                    if len(new_prompts) == 0:
+                        print(new_elem)
+                    new_prompts.append(self.tokenizer.apply_chat_template(
+                        new_elem,
+                        tokenize=False,
+                        add_generation_prompt=True
+                    ))
 
-            with open("./template_1_2.md", "r", encoding="utf-8") as f:
-                user1 = f.read()
+            else:
+                for prompt in prompts:
+                    if len(new_prompts == 0):
+                        print([{"role": "user", "content": prompt}])
 
-            with open("./template_1_3.md", "r", encoding="utf-8") as f:
-                assist1 = f.read()
-
-            with open("./template_1_4.md", "r", encoding="utf-8") as f:
-                user2 = f.read()
-
-            display = [
-                        {"role": "system", "content": system1},
-                        {"role": "user", "content": user1},
-                        {"role": "assistant", "content": assist1},
-                        {"role": "user", "content": user2 + "[Question]\n" + prompts[0]}
-                    ]
-
-            print(display)
-
-            print(prompts[0])
-
-            for prompt in prompts:
-                new_prompts.append(self.tokenizer.apply_chat_template(
-                    [
-                        {"role": "system", "content": system1},
-                        {"role": "user", "content": user1},
-                        {"role": "assistant", "content": assist1},
-                        {"role": "user", "content": user2 + "[Question]\n" + prompt}
-                    ],
-                    tokenize=False,
-                    add_generation_prompt=True
-                ))
-                """
-                new_prompts.append(self.tokenizer.apply_chat_template(
-                    [{"role": "user", "content": prompt}],
-                    tokenize=False,
-                    add_generation_prompt=True
-                ))"""
-
+                    new_prompts.append(self.tokenizer.apply_chat_template(
+                        [{"role": "user", "content": prompt}],
+                        tokenize=False,
+                        add_generation_prompt=True
+                    ))
 
             outputs = self.generate(new_prompts)
             assert len(outputs) == len(current_prompts)
@@ -300,158 +281,166 @@ class Model():
 
         return result_json
 
-    @staticmethod
-    def dry_run(data_name, prompt_type, file_path, input, target, split="test"):
-        # This function evaluates the model on a specific dataset.
-        base_path = os.path.dirname(__file__)
-        if base_path.endswith("/"):
-            base_path = base_path[:len(base_path) - 1]
-        data_path = base_path + "/data"
-        prompt_path = base_path + "/prompts"
-        examples = load_data(data_name, split, data_path)
-
-        out_file_prefix = f'./output/{datetime.now().strftime("%m-%d_%H-%M")}/'
-        out_file = out_file_prefix + f'results_{data_name}.jsonl'
-        os.makedirs(out_file_prefix, exist_ok=True)
-
-        print("=" * 50)
-        print("data:", data_name, " ,remain samples:", len(examples))
-        print(examples[0])
-
-        if "pal" in prompt_type:
-            executor = PythonExecutor(get_answer_expr='solution()')
-        else:
-            executor = PythonExecutor(get_answer_from_stdout=True)
-
-        samples = []
-
-        for example in tqdm(examples, total=len(examples)):
-            idx = example['idx']
-
-            # parse question and answer
-            example['question'] = parse_question(example, data_name)
-            gt_cot, gt_ans = parse_ground_truth(example, data_name)
-            full_prompt = construct_prompt(example, data_name, prompt_type, prompt_path)
-            sample = {'idx': idx, 'question': example['question'], 'gt_cot': gt_cot, 'gt': gt_ans, 'prompt': full_prompt}
-
-            # add remain fields
-            for key in ['level', 'type', 'unit', 'solution_type', 'choices', 'solution', 'ques_type', \
-                'ans_type', 'answer_type', 'dataset', 'subfield', 'filed', 'theorem', 'answer']:
-                if key in example:
-                    sample[key] = example[key]
-            samples.append(sample)
 
 
-        # repeat n times
-        input_prompts = [sample['prompt'] for sample in samples]
-        remain_prompts = input_prompts
-        remain_prompts = [(i, prompt) for i, prompt in enumerate(remain_prompts)]
-        end_prompts = []
+def dry_run(data_name, prompt_type, file_path, input, target, split="test"):
+    # This function evaluates the model on a specific dataset.
+    base_path = os.path.dirname(__file__)
+    if base_path.endswith("/"):
+        base_path = base_path[:len(base_path) - 1]
+    data_path = base_path + "/data"
+    prompt_path = base_path + "/prompts"
+    examples = load_data(data_name, split, data_path)
 
-        max_func_call = 1 if prompt_type in ['cot', 'pal'] else 4
+    out_file_prefix = f'./output/{datetime.now().strftime("%m-%d_%H-%M")}/'
+    out_file = out_file_prefix + f'results_{data_name}.jsonl'
+    os.makedirs(out_file_prefix, exist_ok=True)
 
-        for epoch in range(max_func_call):
-            print("-" * 20, "Epoch", epoch, "-" * 20)
-            current_prompts = remain_prompts
-            if len(current_prompts) == 0:
-                break
+    print("=" * 50)
+    print("data:", data_name, " ,remain samples:", len(examples))
+    print(examples[0])
 
-            # get all outputs
-            prompts = [item[1] for item in current_prompts]
+    if "pal" in prompt_type:
+        executor = PythonExecutor(get_answer_expr='solution()')
+    else:
+        executor = PythonExecutor(get_answer_from_stdout=True)
 
-            outputs = []
+    samples = []
 
-            with open(file_path, "r", encoding="utf-8") as f:
-                appeared = set()
-                for line in f:
-                    entry = json.loads(line)
-                    for cur_index in range(len(prompts)):
-                        cur_prompt = prompts[cur_index]
-                        if entry[input] == cur_prompt:
-                            outputs.append([cur_index, entry[target]])
-                            appeared.add(cur_index)
-                            break
+    for example in tqdm(examples, total=len(examples)):
+        idx = example['idx']
 
+        # parse question and answer
+        example['question'] = parse_question(example, data_name)
+        gt_cot, gt_ans = parse_ground_truth(example, data_name)
+        full_prompt = construct_prompt(example, data_name, prompt_type, prompt_path)
+        sample = {'idx': idx, 'question': example['question'], 'gt_cot': gt_cot, 'gt': gt_ans, 'prompt': full_prompt}
+
+        # add remain fields
+        for key in ['level', 'type', 'unit', 'solution_type', 'choices', 'solution', 'ques_type', \
+            'ans_type', 'answer_type', 'dataset', 'subfield', 'filed', 'theorem', 'answer']:
+            if key in example:
+                sample[key] = example[key]
+        samples.append(sample)
+
+
+    # repeat n times
+    input_prompts = [sample['prompt'] for sample in samples]
+    remain_prompts = input_prompts
+    remain_prompts = [(i, prompt) for i, prompt in enumerate(remain_prompts)]
+    end_prompts = []
+
+    max_func_call = 1 if prompt_type in ['cot', 'pal'] else 4
+
+    valid_count = 0
+
+    for epoch in range(max_func_call):
+        print("-" * 20, "Epoch", epoch, "-" * 20)
+        current_prompts = remain_prompts
+        if len(current_prompts) == 0:
+            break
+
+        # get all outputs
+        prompts = [item[1] for item in current_prompts]
+
+        outputs = []
+
+        with open(file_path, "r", encoding="utf-8") as f:
+            appeared = set()
+            for line in f:
+                entry = json.loads(line)
                 for cur_index in range(len(prompts)):
-                    if cur_index not in appeared:
-                        outputs.append([cur_index, " "])
+                    cur_prompt = prompts[cur_index]
+                    if entry[input] in cur_prompt:
+                        valid_count += 1
+                        outputs.append([cur_index, entry[target]])
+                        appeared.add(cur_index)
+                        break
 
-            outputs = sorted(outputs, key=lambda x: x[0])
-            outputs = [_[1] for _ in outputs]
+            for cur_index in range(len(prompts)):
+                if cur_index not in appeared:
+                    outputs.append([cur_index, " "])
+
+        outputs = sorted(outputs, key=lambda x: x[0])
+        outputs = [_[1] for _ in outputs]
 
 
-            assert len(outputs) == len(current_prompts)
+        assert len(outputs) == len(current_prompts)
 
-            # process all outputs
-            remain_prompts = []
-            remain_codes = []
-            for (i, query), output in zip(current_prompts, outputs):
-                output = output.rstrip()
-                query += output
-                if prompt_type == "pal":
-                    remain_prompts.append((i, query))
-                    if "```python" in output:
-                        output = extract_program(query)
-                    remain_codes.append(output)
-                elif prompt_type == "cot":
-                    end_prompts.append((i, query))
-                elif ("boxed" not in output and output.endswith("```")):
-                    program = extract_program(query)
-                    remain_prompts.append((i, query))
-                    remain_codes.append(program)
-                else:
-                    end_prompts.append((i, query))
+        # process all outputs
+        remain_prompts = []
+        remain_codes = []
+        for (i, query), output in zip(current_prompts, outputs):
+            output = output.rstrip()
+            query += output
+            if prompt_type == "pal":
+                remain_prompts.append((i, query))
+                if "```python" in output:
+                    output = extract_program(query)
+                remain_codes.append(output)
+            elif prompt_type == "cot":
+                end_prompts.append((i, query))
+            elif ("boxed" not in output and output.endswith("```")):
+                program = extract_program(query)
+                remain_prompts.append((i, query))
+                remain_codes.append(program)
+            else:
+                end_prompts.append((i, query))
 
-            # execute the remain prompts
-            remain_results = executor.batch_apply(remain_codes)
-            for k in range(len(remain_prompts)):
-                i, query = remain_prompts[k]
-                res, report = remain_results[k]
-                exec_result = res if res else report
-                if "pal" in prompt_type:
-                    exec_result = "\\boxed{" + exec_result + "}"
-                exec_result = f"\n```output\n{exec_result}\n```\n"
-                query += exec_result
-                # not end
-                if epoch == max_func_call - 1:
-                    query += "\nReach max function call limit."
-                remain_prompts[k] = (i, query)
+        # execute the remain prompts
+        remain_results = executor.batch_apply(remain_codes)
+        for k in range(len(remain_prompts)):
+            i, query = remain_prompts[k]
+            res, report = remain_results[k]
+            exec_result = res if res else report
+            if "pal" in prompt_type:
+                exec_result = "\\boxed{" + exec_result + "}"
+            exec_result = f"\n```output\n{exec_result}\n```\n"
+            query += exec_result
+            # not end
+            if epoch == max_func_call - 1:
+                query += "\nReach max function call limit."
+            remain_prompts[k] = (i, query)
 
-        # unsolved samples
-        print("Unsolved samples:", len(remain_prompts))
-        end_prompts.extend(remain_prompts)
-        # sort by idx
-        end_prompts = sorted(end_prompts, key=lambda x: x[0])
+    # unsolved samples
+    print("Unsolved samples:", len(remain_prompts))
+    end_prompts.extend(remain_prompts)
+    # sort by idx
+    end_prompts = sorted(end_prompts, key=lambda x: x[0])
 
-        # remove input_prompt from end_prompt
-        codes = []
-        assert len(input_prompts) == len(end_prompts)
-        for i in range(len(input_prompts)):
-            _, end_prompt = end_prompts[i]
-            code = end_prompt.split(input_prompts[i])[-1].strip()
-            codes.append(code)
+    # remove input_prompt from end_prompt
+    codes = []
+    assert len(input_prompts) == len(end_prompts)
+    for i in range(len(input_prompts)):
+        _, end_prompt = end_prompts[i]
+        code = end_prompt.split(input_prompts[i])[-1].strip()
+        codes.append(code)
 
-        # extract preds
-        results = [run_execute(executor, code, prompt_type, data_name) for code in codes]
+    # extract preds
+    results = [run_execute(executor, code, prompt_type, data_name) for code in codes]
 
-        # put results back to examples
-        all_samples = []
-        for i, sample in enumerate(samples):
-            code = codes[i: i + 1]
-            result = results[i: i + 1]
-            preds = [item[0] for item in result]
-            reports = [item[1] for item in result]
-            sample.pop('prompt')
-            sample.update({'code': code, 'pred': preds, 'report': reports})
-            all_samples.append(sample)
+    # put results back to examples
+    all_samples = []
+    for i, sample in enumerate(samples):
+        code = codes[i: i + 1]
+        result = results[i: i + 1]
+        preds = [item[0] for item in result]
+        reports = [item[1] for item in result]
+        sample.pop('prompt')
+        sample.update({'code': code, 'pred': preds, 'report': reports})
+        all_samples.append(sample)
 
-        # add processed samples
-        all_samples, result_json = evaluate(samples=all_samples, data_name=data_name, prompt_type=prompt_type, execute=True)
+    # add processed samples
+    all_samples, result_json = evaluate(samples=all_samples, data_name=data_name, prompt_type=prompt_type, execute=True, use_tqdm=False)
 
-        result_json['time_use_in_second'] = 0
-        result_json['time_use_in_minite'] = 0
+    result_json['time_use_in_second'] = 0
+    result_json['time_use_in_minite'] = 0
 
-        with open(out_file.replace(".jsonl", f"_{prompt_type}_metrics_dry_run.json"), "w") as f:
-            json.dump(result_json, f, indent=4)
+    correct = int(result_json["correct"])
 
-        return result_json
+    print(f"Valid samples: {valid_count} . Correct: {correct} . Acc: {100 * correct / valid_count} %")
+
+    with open(out_file.replace(".jsonl", f"_{prompt_type}_metrics_dry_run.json"), "w") as f:
+        json.dump(result_json, f, indent=4)
+
+    return result_json

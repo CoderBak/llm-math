@@ -1,4 +1,5 @@
 import os
+import re
 import json
 import random
 import numpy as np
@@ -152,3 +153,21 @@ def show_sample(sample, print_all_preds=False):
             _key  = key_map.get(key, key)
             print("{}: {}".format(_key, repr(sample[key])))
     print()
+
+def postprocess(base, prompt):
+    result = base.replace("%%Question%%", prompt)
+    matches = re.findall(r'%%(.*?)%%', result)
+
+    for match in matches:
+        match = match.strip()
+        if os.path.exists(match):
+            try:
+                with open(match, 'r', encoding='utf-8') as file:
+                    file_content = file.read()
+                result = result.replace(f"%%{match}%%", file_content)
+            except Exception as e:
+                print(f"Error reading file {match}: {e}")
+        else:
+            print(f"File {match} not found.")
+
+    return result
