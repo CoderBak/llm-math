@@ -284,6 +284,8 @@ class Model():
 
 
 def dry_run(data_name, prompt_type, file_path, input, target, split="test"):
+    ori_inputs = []
+
     # This function evaluates the model on a specific dataset.
     base_path = os.path.dirname(__file__)
     if base_path.endswith("/"):
@@ -349,6 +351,7 @@ def dry_run(data_name, prompt_type, file_path, input, target, split="test"):
             appeared = set()
             for line in f:
                 entry = json.loads(line)
+                ori_inputs.append(entry)
                 for cur_index in range(len(prompts)):
                     cur_prompt = prompts[cur_index]
                     if entry[input] in cur_prompt:
@@ -443,4 +446,12 @@ def dry_run(data_name, prompt_type, file_path, input, target, split="test"):
     with open(out_file.replace(".jsonl", f"_{prompt_type}_metrics_dry_run.json"), "w") as f:
         json.dump(result_json, f, indent=4)
 
-    return result_json
+    for i in range(len(ori_inputs)):
+        entry = ori_inputs[i]
+        cur_input = entry[input]
+        for sample in all_samples:
+            if sample['question'] == cur_input:
+                ori_inputs[i]["score"] = sample["score"][0]
+                break
+    
+    return ori_inputs
